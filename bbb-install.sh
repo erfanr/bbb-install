@@ -228,6 +228,9 @@ main() {
     exit 0
   fi
 
+  # Setup TOR
+  setup_tor
+
   # We're installing BigBlueButton
   env
   if [ "$DISTRO" == "xenial" ]; then 
@@ -273,7 +276,7 @@ main() {
       wget -qO - https://www.mongodb.org/static/pgp/server-3.4.asc | sudo apt-key add -
     fi
     rm -rf /etc/apt/sources.list.d/mongodb-org-4.0.list
-    echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+    echo "deb tor+http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
     MONGODB=mongodb-org
     need_pkg openjdk-8-jre
   fi
@@ -299,7 +302,7 @@ HERE
     if ! apt-key list | grep -q MongoDB; then
       wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
     fi
-    echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+    echo "deb [ arch=amd64 ] tor+https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
 
     MONGODB=mongodb-org
   fi
@@ -374,6 +377,11 @@ HERE
   fi
 
   bbb-conf --check
+}
+
+setup_tor() {
+    apt install -y tor apt-transport-tor
+    systemctl start tor
 }
 
 say() {
@@ -657,7 +665,6 @@ configure_HTML5() {
 
   sed -n 's/swfSlidesRequired=true/swfSlidesRequired=false/g'                    $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 }
-
 install_greenlight(){
   need_pkg software-properties-common openssl
 
@@ -674,7 +681,7 @@ install_greenlight(){
 
   if ! dpkg -l | grep -q docker-ce; then
     add-apt-repository \
-     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+     "deb [arch=amd64] tor+https://download.docker.com/linux/ubuntu \
      $(lsb_release -cs) \
      stable"
 
