@@ -676,7 +676,7 @@ install_greenlight(){
 
   # Install Docker
   if ! apt-key list | grep -q Docker; then
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    torify curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
   fi
 
   if ! dpkg -l | grep -q docker-ce; then
